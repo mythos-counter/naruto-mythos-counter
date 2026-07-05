@@ -180,6 +180,13 @@
     white-space:nowrap;
   }
   .mission-group .mission-cell:last-child{ border-right:none; }
+  .mission-cell.locked{
+    background:#2B3034;
+    color:rgba(255,255,255,0.35);
+  }
+  .mission-cell.locked .mission-value{
+    color:rgba(255,255,255,0.35);
+  }
   .mission-value{
     color:#FFD400;
     font-weight:900;
@@ -550,12 +557,12 @@
     <div class="mission-row">
       <div class="mission-group">
         <div class="mission-cell">D-MISSION <span class="mission-value" id="mission-value-d">0</span></div>
-        <div class="mission-cell">C-MISSION <span class="mission-value">2</span></div>
+        <div class="mission-cell locked">C-MISSION <span class="mission-value" id="mission-value-c">–</span></div>
       </div>
       <div class="mission-gap"></div>
       <div class="mission-group">
-        <div class="mission-cell">B-MISSION <span class="mission-value">3</span></div>
-        <div class="mission-cell">A-MISSION <span class="mission-value">4</span></div>
+        <div class="mission-cell locked">B-MISSION <span class="mission-value" id="mission-value-b">–</span></div>
+        <div class="mission-cell locked">A-MISSION <span class="mission-value" id="mission-value-a">–</span></div>
       </div>
     </div>
 
