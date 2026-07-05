@@ -952,8 +952,6 @@
         <div class="mt-final-stack">
           <div class="mt-stat-label">YOUR POINTS</div>
           <span class="overlay-value" id="mt-final-player">0</span>
-          <span class="mt-projected" id="mt-final-player-projected">+0</span>
-          <span class="mt-projected-total" id="mt-final-player-projected-total">PROJECTED 0</span>
         </div>
         <button class="step step-chakra" data-mt-final="player" data-delta="-1">–</button>
       </div>
@@ -963,8 +961,6 @@
         <div class="mt-final-stack">
           <div class="mt-stat-label">RIVAL POINTS</div>
           <span class="overlay-value" id="mt-final-rival">0</span>
-          <span class="mt-projected" id="mt-final-rival-projected">+0</span>
-          <span class="mt-projected-total" id="mt-final-rival-projected-total">PROJECTED 0</span>
         </div>
         <button class="step step-chakra" data-mt-final="rival" data-delta="-1">–</button>
       </div>
@@ -1312,11 +1308,6 @@
   function mtRenderFinalScore(){
     document.getElementById("mt-final-player").textContent = mtTotals.player;
     document.getElementById("mt-final-rival").textContent  = mtTotals.rival;
-    const { rivalProjected, playerProjected } = mtProjection();
-    document.getElementById("mt-final-player-projected").textContent = `+${playerProjected}`;
-    document.getElementById("mt-final-rival-projected").textContent  = `+${rivalProjected}`;
-    document.getElementById("mt-final-player-projected-total").textContent = `PROJECTED ${mtTotals.player + playerProjected}`;
-    document.getElementById("mt-final-rival-projected-total").textContent  = `PROJECTED ${mtTotals.rival + rivalProjected}`;
   }
 
   function mtShowFinalScore(){
