@@ -45,22 +45,29 @@
   .points{
     flex:1;
     display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:14px;
+    gap:2px;
     color:var(--ink);
   }
-  .points.left{ background:var(--left-dark); flex-direction:row; }
-  .points.right{ background:var(--right-dark); flex-direction:row-reverse; }
+  .points.left{ background:var(--left-dark); }
+  .points.right{ background:var(--right-dark); }
+
+  .points-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .points.left .points-row{ flex-direction:row; }
+  .points.right .points-row{ flex-direction:row-reverse; }
 
   .points-label{
-    font-size:13px;
+    font-size:11px;
     font-weight:800;
     letter-spacing:0.14em;
     color:var(--ink-dim);
-    margin-right:6px;
   }
-  .points.right .points-label{ margin-right:0; margin-left:6px; }
 
   .points-value{
     font-size:38px;
@@ -218,9 +225,12 @@
 
     <div class="topbar">
       <div class="points left">
-        <button class="step points-plus" data-side="left" data-stat="points" data-delta="1">+</button>
-        <span class="points-value" id="points-left">0</span>
-        <button class="step points-minus" data-side="left" data-stat="points" data-delta="-1">–</button>
+        <div class="points-label">POINTS</div>
+        <div class="points-row">
+          <button class="step points-plus" data-side="left" data-stat="points" data-delta="1">+</button>
+          <span class="points-value" id="points-left">0</span>
+          <button class="step points-minus" data-side="left" data-stat="points" data-delta="-1">–</button>
+        </div>
       </div>
 
       <div class="diff">
@@ -229,9 +239,12 @@
       </div>
 
       <div class="points right">
-        <button class="step points-plus" data-side="right" data-stat="points" data-delta="1">+</button>
-        <span class="points-value" id="points-right">0</span>
-        <button class="step points-minus" data-side="right" data-stat="points" data-delta="-1">–</button>
+        <div class="points-label">POINTS</div>
+        <div class="points-row">
+          <button class="step points-plus" data-side="right" data-stat="points" data-delta="1">+</button>
+          <span class="points-value" id="points-right">0</span>
+          <button class="step points-minus" data-side="right" data-stat="points" data-delta="-1">–</button>
+        </div>
       </div>
     </div>
 
