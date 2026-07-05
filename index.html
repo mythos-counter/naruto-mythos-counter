@@ -40,11 +40,141 @@
   }
 
   .app{
-    display:flex;
-    flex-direction:column;
+    display:none;
     height:100dvh;
     width:100vw;
   }
+  .app.active{ display:flex; flex-direction:column; }
+
+  /* ---- Mission Tracker mode ---- */
+  .app-mission{
+    display:none;
+    height:100dvh;
+    width:100vw;
+  }
+  .app-mission.active{ display:flex; flex-direction:column; position:relative; }
+
+  .mt-grid{
+    flex:1;
+    min-height:0;
+    display:flex;
+  }
+  .mt-col{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    color:var(--ink);
+    border-right:1px solid rgba(0,0,0,0.35);
+  }
+  .mt-col:last-child{ border-right:none; }
+  .mt-col.locked{ opacity:0.55; pointer-events:none; }
+  .mt-col.locked .mt-stat, .mt-col.locked .mt-mission-info{ background:#2B3034; }
+  .mt-col.locked .mt-mission-total{ color:rgba(255,255,255,0.35); }
+  .mt-col.mt-center{ flex:1.15; }
+
+  .mt-stat{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    padding:8px 4px;
+  }
+  .mt-stat.mt-rival{ background:var(--right); }
+  .mt-stat.mt-player{ background:var(--left); }
+  .mt-col.mt-center .mt-stat.mt-rival{ background:var(--right-dark); }
+  .mt-col.mt-center .mt-stat.mt-player{ background:var(--left-dark); }
+  .mt-stat-label{
+    font-size:clamp(9px, 1.6vh, 11px);
+    font-weight:800;
+    letter-spacing:0.1em;
+    color:rgba(255,255,255,0.7);
+  }
+  .mt-stat-value{
+    font-size:clamp(18px, 5.5vh, 34px);
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+    line-height:1;
+  }
+  .mt-stepper{
+    display:flex;
+    align-items:center;
+    gap:clamp(6px, 1.8vw, 14px);
+  }
+  .mt-stepper.mt-stepper-vertical{
+    flex-direction:column;
+    gap:6px;
+  }
+  .mt-step{
+    appearance:none;
+    border:none;
+    width:26px;
+    height:26px;
+    flex-shrink:0;
+    border-radius:999px;
+    background:rgba(0,0,0,0.18);
+    color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;
+    font-size:15px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .mt-step:active{ background:rgba(0,0,0,0.32); }
+
+  .mt-mission-info{
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    padding:8px 4px;
+    background:var(--diff-bg);
+  }
+  .mt-mission-name{
+    font-size:clamp(9px, 1.6vh, 11px);
+    font-weight:800;
+    letter-spacing:0.06em;
+    white-space:nowrap;
+  }
+  .mt-mission-total{
+    color:#F2C879;
+    margin-left:2px;
+  }
+  .mt-diff{
+    font-size:clamp(11px, 2vh, 14px);
+    font-weight:800;
+    letter-spacing:0.04em;
+    color:rgba(255,255,255,0.75);
+  }
+  .mt-diff.diff-positive{ color:#4ADE80; }
+  .mt-diff.diff-negative{ color:#FF5C5C; }
+  .mt-diff-total{ font-size:clamp(13px, 2.4vh, 17px); color:var(--ink); }
+  .mt-diff-projected{
+    font-size:clamp(9px, 1.6vh, 11px);
+    letter-spacing:0.08em;
+    opacity:0.8;
+  }
+  .mt-projected{
+    font-size:clamp(10px, 1.8vh, 13px);
+    font-weight:800;
+    color:rgba(255,255,255,0.8);
+  }
+  .mt-projected-total{
+    font-size:clamp(9px, 1.6vh, 12px);
+    font-weight:700;
+    letter-spacing:0.04em;
+    color:rgba(255,255,255,0.6);
+  }
+  .mt-final-stack{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+
+  .app-mission .options-btn{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); }
 
   /* ---- Top bar: Points / Diff / Points ---- */
   .topbar{
@@ -504,8 +634,10 @@
   .rotate-hint p{ margin:0; font-size:15px; color:rgba(255,255,255,0.75); max-width:32ch; }
 
   @media (orientation:portrait){
-    .app{ display:none; }
+    .app.active{ display:none; }
+    .app-mission.active{ display:none; }
     .rotate-hint{ display:flex; }
+    #overlay-mode{ display:none; }
     #overlay-start{ display:none; }
     #overlay-mission-setup{ display:none; }
   }
@@ -518,8 +650,18 @@
     <p>Rotate your device to landscape to use the tracker.</p>
   </div>
 
-  <!-- Start game gate -->
-  <div class="overlay showing" id="overlay-start">
+  <!-- Mode select gate -->
+  <div class="overlay showing" id="overlay-mode">
+    <div class="options-panel">
+      <div style="font-size:13px; font-weight:800; letter-spacing:0.16em; color:var(--ink-dim); margin-bottom:-6px;">MYTHOS TRACKER</div>
+      <h3 style="margin:0 0 4px; font-size:24px; font-weight:900; letter-spacing:0.04em; color:var(--ink);">CHOOSE MODE</h3>
+      <button class="options-btn-row" id="mode-game-btn">GAME TRACKER</button>
+      <button class="options-btn-row" id="mode-mission-btn">MISSION TRACKER</button>
+    </div>
+  </div>
+
+  <!-- Start game gate (Game Tracker only) -->
+  <div class="overlay" id="overlay-start">
     <div class="options-panel">
       <div style="font-size:13px; font-weight:800; letter-spacing:0.16em; color:var(--ink-dim); margin-bottom:-6px;">MYTHOS TRACKER</div>
       <h3 style="margin:0 0 4px; font-size:24px; font-weight:900; letter-spacing:0.04em; color:var(--ink);">START GAME</h3>
@@ -604,6 +746,130 @@
 
   </div>
 
+  <div class="app-mission" id="app-mission">
+    <div class="mt-grid">
+
+      <div class="mt-col locked" data-rank="d">
+        <div class="mt-stat mt-rival">
+          <div class="mt-stepper mt-stepper-vertical">
+            <button class="mt-step" data-mt="rival" data-rank="d" data-delta="1">+</button>
+            <span class="mt-stat-value" id="mt-rival-d">0</span>
+            <button class="mt-step" data-mt="rival" data-rank="d" data-delta="-1">–</button>
+          </div>
+        </div>
+        <div class="mt-mission-info">
+          <div class="mt-mission-name">D-MISSION <span class="mt-mission-total" id="mt-total-d">–</span></div>
+          <div class="mt-diff" id="mt-diff-d">DIFF 0</div>
+        </div>
+        <div class="mt-stat mt-player">
+          <div class="mt-stepper mt-stepper-vertical">
+            <button class="mt-step" data-mt="player" data-rank="d" data-delta="1">+</button>
+            <span class="mt-stat-value" id="mt-player-d">0</span>
+            <button class="mt-step" data-mt="player" data-rank="d" data-delta="-1">–</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-col locked" data-rank="c">
+        <div class="mt-stat mt-rival">
+          <div class="mt-stepper mt-stepper-vertical">
+            <button class="mt-step" data-mt="rival" data-rank="c" data-delta="1">+</button>
+            <span class="mt-stat-value" id="mt-rival-c">0</span>
+            <button class="mt-step" data-mt="rival" data-rank="c" data-delta="-1">–</button>
+          </div>
+        </div>
+        <div class="mt-mission-info">
+          <div class="mt-mission-name">C-MISSION <span class="mt-mission-total" id="mt-total-c">–</span></div>
+          <div class="mt-diff" id="mt-diff-c">DIFF 0</div>
+        </div>
+        <div class="mt-stat mt-player">
+          <div class="mt-stepper mt-stepper-vertical">
+            <button class="mt-step" data-mt="player" data-rank="c" data-delta="1">+</button>
+            <span class="mt-stat-value" id="mt-player-c">0</span>
+            <button class="mt-step" data-mt="player" data-rank="c" data-delta="-1">–</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-col locked" data-rank="b">
+        <div class="mt-stat mt-rival">
+          <div class="mt-stepper mt-stepper-vertical">
+            <button class="mt-step" data-mt="rival" data-rank="b" data-delta="1">+</button>
+            <span class="mt-stat-value" id="mt-rival-b">0</span>
+            <button class="mt-step" data-mt="rival" data-rank="b" data-delta="-1">–</button>
+          </div>
+        </div>
+        <div class="mt-mission-info">
+          <div class="mt-mission-name">B-MISSION <span class="mt-mission-total" id="mt-total-b">–</span></div>
+          <div class="mt-diff" id="mt-diff-b">DIFF 0</div>
+        </div>
+        <div class="mt-stat mt-player">
+          <div class="mt-stepper mt-stepper-vertical">
+            <button class="mt-step" data-mt="player" data-rank="b" data-delta="1">+</button>
+            <span class="mt-stat-value" id="mt-player-b">0</span>
+            <button class="mt-step" data-mt="player" data-rank="b" data-delta="-1">–</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-col locked" data-rank="a">
+        <div class="mt-stat mt-rival">
+          <div class="mt-stepper mt-stepper-vertical">
+            <button class="mt-step" data-mt="rival" data-rank="a" data-delta="1">+</button>
+            <span class="mt-stat-value" id="mt-rival-a">0</span>
+            <button class="mt-step" data-mt="rival" data-rank="a" data-delta="-1">–</button>
+          </div>
+        </div>
+        <div class="mt-mission-info">
+          <div class="mt-mission-name">A-MISSION <span class="mt-mission-total" id="mt-total-a">–</span></div>
+          <div class="mt-diff" id="mt-diff-a">DIFF 0</div>
+        </div>
+        <div class="mt-stat mt-player">
+          <div class="mt-stepper mt-stepper-vertical">
+            <button class="mt-step" data-mt="player" data-rank="a" data-delta="1">+</button>
+            <span class="mt-stat-value" id="mt-player-a">0</span>
+            <button class="mt-step" data-mt="player" data-rank="a" data-delta="-1">–</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-col mt-center">
+        <div class="mt-stat mt-rival">
+          <div class="mt-stat-label">RIVAL POINTS</div>
+          <div class="mt-stepper">
+            <button class="mt-step" data-mt-total="rival" data-delta="-1">–</button>
+            <span class="mt-stat-value" id="mt-rival-total">0</span>
+            <button class="mt-step" data-mt-total="rival" data-delta="1">+</button>
+          </div>
+          <span class="mt-projected" id="mt-rival-projected">+0</span>
+          <span class="mt-projected-total" id="mt-rival-projected-total">PROJECTED 0</span>
+        </div>
+        <div class="mt-mission-info">
+          <div class="mt-diff mt-diff-total" id="mt-diff-overall">DIFF 0</div>
+          <div class="mt-diff mt-diff-projected" id="mt-diff-projected">PROJECTED DIFF 0</div>
+          <button class="end-round-btn" id="mt-end-round">END ROUND</button>
+          <div class="timer-box" id="mt-timer-box">
+            <div class="timer-label">TIME</div>
+            <div class="timer-value" id="mt-timer-value">30:00</div>
+          </div>
+        </div>
+        <div class="mt-stat mt-player">
+          <div class="mt-stat-label">YOUR POINTS</div>
+          <div class="mt-stepper">
+            <button class="mt-step" data-mt-total="player" data-delta="-1">–</button>
+            <span class="mt-stat-value" id="mt-player-total">0</span>
+            <button class="mt-step" data-mt-total="player" data-delta="1">+</button>
+          </div>
+          <span class="mt-projected" id="mt-player-projected">+0</span>
+          <span class="mt-projected-total" id="mt-player-projected-total">PROJECTED 0</span>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="options-btn" id="mt-options-open">OPTIONS</button>
+  </div>
+
   <!-- Overlay 1: who won the current mission -->
   <div class="overlay" id="overlay-mission-winner">
     <div class="overlay-header">
@@ -612,11 +878,11 @@
     </div>
     <div class="overlay-main">
       <div class="overlay-side left mission-winner-tap" id="mission-winner-left">
-        <div class="mission-winner-label">PLAYER A</div>
+        <div class="mission-winner-label" id="mission-winner-left-label">PLAYER A</div>
       </div>
       <div class="divider"></div>
       <div class="overlay-side right mission-winner-tap" id="mission-winner-right">
-        <div class="mission-winner-label">PLAYER B</div>
+        <div class="mission-winner-label" id="mission-winner-right-label">PLAYER B</div>
       </div>
     </div>
   </div>
@@ -676,6 +942,35 @@
     </div>
     <div class="final-actions">
       <button class="options-btn-row danger" id="final-finish">FINISH &amp; RESET</button>
+    </div>
+  </div>
+
+  <!-- Overlay 2c: Mission Tracker final score once A-MISSION has been set up -->
+  <div class="overlay" id="overlay-mt-final">
+    <div class="overlay-header">
+      <div class="overlay-title">FINAL SCORE</div>
+    </div>
+    <div class="overlay-main">
+      <div class="overlay-side left">
+        <button class="step step-chakra" data-mt-final="player" data-delta="1">+</button>
+        <div class="mt-final-stack">
+          <div class="mt-stat-label">YOUR POINTS</div>
+          <span class="overlay-value" id="mt-final-player">0</span>
+        </div>
+        <button class="step step-chakra" data-mt-final="player" data-delta="-1">–</button>
+      </div>
+      <div class="divider"></div>
+      <div class="overlay-side right">
+        <button class="step step-chakra" data-mt-final="rival" data-delta="1">+</button>
+        <div class="mt-final-stack">
+          <div class="mt-stat-label">RIVAL POINTS</div>
+          <span class="overlay-value" id="mt-final-rival">0</span>
+        </div>
+        <button class="step step-chakra" data-mt-final="rival" data-delta="-1">–</button>
+      </div>
+    </div>
+    <div class="final-actions">
+      <button class="options-btn-row danger" id="mt-final-finish">FINISH &amp; RESET</button>
     </div>
   </div>
 
@@ -762,6 +1057,12 @@
     overlayOptions.classList.add("showing");
   });
 
+  document.getElementById("mt-options-open").addEventListener("click", () => {
+    optionsMenu.classList.remove("hidden");
+    optionsAbout.classList.remove("showing");
+    overlayOptions.classList.add("showing");
+  });
+
   document.getElementById("options-close").addEventListener("click", () => {
     overlayOptions.classList.remove("showing");
   });
@@ -841,6 +1142,8 @@
 
   const overlayMissionWinner = document.getElementById("overlay-mission-winner");
   const missionWinnerTitle   = document.getElementById("mission-winner-title");
+  const missionWinnerLeftLabel  = document.getElementById("mission-winner-left-label");
+  const missionWinnerRightLabel = document.getElementById("mission-winner-right-label");
   const overlayChakra = document.getElementById("overlay-chakra");
   const overlayFinal = document.getElementById("overlay-final");
   let ovChakra = { left: 5, right: 5 };
@@ -877,6 +1180,8 @@
     }
     const rank = resolveQueue.shift();
     overlayMissionWinner.dataset.rank = rank;
+    missionWinnerLeftLabel.textContent  = "PLAYER A";
+    missionWinnerRightLabel.textContent = "PLAYER B";
     missionWinnerTitle.textContent = `WHO WON ${MISSION_LABEL[rank]}? (${missionValue[rank]} PTS)`;
     overlayMissionWinner.classList.add("showing");
   }
@@ -895,11 +1200,15 @@
     resolveNextMission();
   });
 
-  document.getElementById("mission-winner-left").addEventListener("click", () => awardMissionWinner("left"));
-  document.getElementById("mission-winner-right").addEventListener("click", () => awardMissionWinner("right"));
+  document.getElementById("mission-winner-left").addEventListener("click", () => {
+    if (appMode === "mission") mtAwardMissionWinner("player"); else awardMissionWinner("left");
+  });
+  document.getElementById("mission-winner-right").addEventListener("click", () => {
+    if (appMode === "mission") mtAwardMissionWinner("rival"); else awardMissionWinner("right");
+  });
 
   document.getElementById("mission-winner-cancel").addEventListener("click", () => {
-    resolveQueue = [];
+    if (appMode === "mission") mtResolveQueue = []; else resolveQueue = [];
     overlayMissionWinner.classList.remove("showing");
   });
 
@@ -942,10 +1251,171 @@
     }
   });
 
+  // ---- Mode select gate ----
+  let appMode = "game";
+  const overlayMode = document.getElementById("overlay-mode");
+  const appMissionEl = document.getElementById("app-mission");
+  const overlayMtFinal = document.getElementById("overlay-mt-final");
+
+  let mtPoints = { d:{rival:0,player:0}, c:{rival:0,player:0}, b:{rival:0,player:0}, a:{rival:0,player:0} };
+  let mtTotals = { rival: 0, player: 0 };
+  let mtMissionValue = { d: null, c: null, b: null, a: null };
+  let mtActiveMissions = [];
+  let mtResolveQueue = [];
+
+  function mtApplyDiffColor(el, diff){
+    el.classList.remove("diff-positive", "diff-negative");
+    if (diff > 0) el.classList.add("diff-positive");
+    else if (diff < 0) el.classList.add("diff-negative");
+  }
+
+  function mtRenderColumn(rank){
+    document.getElementById(`mt-rival-${rank}`).textContent  = mtPoints[rank].rival;
+    document.getElementById(`mt-player-${rank}`).textContent = mtPoints[rank].player;
+    const diff = mtPoints[rank].player - mtPoints[rank].rival;
+    const diffEl = document.getElementById(`mt-diff-${rank}`);
+    diffEl.textContent = `DIFF ${diff}`;
+    mtApplyDiffColor(diffEl, diff);
+  }
+
+  function mtProjection(){
+    let rivalProjected = 0, playerProjected = 0;
+    MISSION_ORDER.forEach(rank => {
+      if (mtMissionValue[rank] === null) return;
+      const raw = mtPoints[rank].player - mtPoints[rank].rival;
+      if (raw > 0) playerProjected += mtMissionValue[rank];
+      else if (raw < 0) rivalProjected += mtMissionValue[rank];
+    });
+    return { rivalProjected, playerProjected };
+  }
+
+  function mtRenderTotals(){
+    document.getElementById("mt-rival-total").textContent  = mtTotals.rival;
+    document.getElementById("mt-player-total").textContent = mtTotals.player;
+    const diff = mtTotals.player - mtTotals.rival;
+    const diffEl = document.getElementById("mt-diff-overall");
+    diffEl.textContent = `DIFF ${diff}`;
+    mtApplyDiffColor(diffEl, diff);
+
+    const { rivalProjected, playerProjected } = mtProjection();
+    document.getElementById("mt-rival-projected").textContent  = `+${rivalProjected}`;
+    document.getElementById("mt-player-projected").textContent = `+${playerProjected}`;
+    document.getElementById("mt-rival-projected-total").textContent  = `PROJECTED ${mtTotals.rival + rivalProjected}`;
+    document.getElementById("mt-player-projected-total").textContent = `PROJECTED ${mtTotals.player + playerProjected}`;
+
+    const projectedDiff = diff + playerProjected - rivalProjected;
+    const projEl = document.getElementById("mt-diff-projected");
+    projEl.textContent = `PROJECTED DIFF ${projectedDiff}`;
+    mtApplyDiffColor(projEl, projectedDiff);
+  }
+
+  function mtRenderFinalScore(){
+    document.getElementById("mt-final-player").textContent = mtTotals.player;
+    document.getElementById("mt-final-rival").textContent  = mtTotals.rival;
+  }
+
+  function mtShowFinalScore(){
+    mtRenderFinalScore();
+    overlayMtFinal.classList.add("showing");
+  }
+
+  function resetMissionTracker(){
+    mtPoints = { d:{rival:0,player:0}, c:{rival:0,player:0}, b:{rival:0,player:0}, a:{rival:0,player:0} };
+    mtTotals = { rival: 0, player: 0 };
+    mtMissionValue = { d: null, c: null, b: null, a: null };
+    mtActiveMissions = [];
+    mtResolveQueue = [];
+    MISSION_ORDER.forEach(rank => {
+      const col = document.querySelector(`.mt-col[data-rank="${rank}"]`);
+      col.classList.add("locked");
+      document.getElementById(`mt-total-${rank}`).textContent = "–";
+      mtRenderColumn(rank);
+    });
+    mtRenderTotals();
+  }
+
+  function mtResolveNextMission(){
+    if (mtResolveQueue.length === 0){
+      const nextRank = MISSION_ORDER.find(r => mtMissionValue[r] === null);
+      if (nextRank) openMissionSetup(nextRank);
+      else mtShowFinalScore();
+      return;
+    }
+    const rank = mtResolveQueue.shift();
+    overlayMissionWinner.dataset.rank = rank;
+    missionWinnerLeftLabel.textContent  = "YOU";
+    missionWinnerRightLabel.textContent = "RIVAL";
+    missionWinnerTitle.textContent = `WHO WON ${MISSION_LABEL[rank]}? (${mtMissionValue[rank]} PTS)`;
+    overlayMissionWinner.classList.add("showing");
+  }
+
+  function mtAwardMissionWinner(who){
+    const rank = overlayMissionWinner.dataset.rank;
+    mtTotals[who] += mtMissionValue[rank];
+    mtRenderTotals();
+    overlayMissionWinner.classList.remove("showing");
+    mtResolveNextMission();
+  }
+
+  document.querySelectorAll('button.mt-step[data-mt]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const rank = btn.dataset.rank, who = btn.dataset.mt, delta = Number(btn.dataset.delta);
+      mtPoints[rank][who] = Math.max(0, mtPoints[rank][who] + delta);
+      mtRenderColumn(rank);
+      mtRenderTotals();
+    });
+  });
+
+  document.querySelectorAll('button.mt-step[data-mt-total]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const who = btn.dataset.mtTotal, delta = Number(btn.dataset.delta);
+      mtTotals[who] = Math.max(0, mtTotals[who] + delta);
+      mtRenderTotals();
+    });
+  });
+
+  document.querySelectorAll('button.step[data-mt-final]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const who = btn.dataset.mtFinal, delta = Number(btn.dataset.delta);
+      mtTotals[who] = Math.max(0, mtTotals[who] + delta);
+      mtRenderFinalScore();
+      mtRenderTotals();
+    });
+  });
+
+  document.getElementById("mt-final-finish").addEventListener("click", () => {
+    if (confirm("Finish the game and reset?")){
+      location.reload();
+    }
+  });
+
+  document.getElementById("mt-end-round").addEventListener("click", () => {
+    mtResolveQueue = [...mtActiveMissions];
+    mtResolveNextMission();
+  });
+
+  document.getElementById("mode-game-btn").addEventListener("click", () => {
+    appMode = "game";
+    overlayMode.classList.remove("showing");
+    document.querySelector(".app").classList.add("active");
+    overlayStart.classList.add("showing");
+  });
+
+  document.getElementById("mode-mission-btn").addEventListener("click", () => {
+    appMode = "mission";
+    overlayMode.classList.remove("showing");
+    appMissionEl.classList.add("active");
+    overlayStart.classList.add("showing");
+  });
+
   // ---- Start game gate + optional 30-min timer ----
   const overlayStart = document.getElementById("overlay-start");
-  const timerBox      = document.getElementById("timer-box");
-  const timerValueEl  = document.getElementById("timer-value");
+  const timerBoxGame     = document.getElementById("timer-box");
+  const timerValueGame   = document.getElementById("timer-value");
+  const timerBoxMission  = document.getElementById("mt-timer-box");
+  const timerValueMission = document.getElementById("mt-timer-value");
+  let timerBox = timerBoxGame;
+  let timerValueEl = timerValueGame;
   let timerEndAt = null;
   let timerInterval = null;
 
@@ -984,15 +1454,18 @@
 
   document.getElementById("start-timer-btn").addEventListener("click", () => {
     overlayStart.classList.remove("showing");
-    resetForNewGame();
+    timerBox = appMode === "mission" ? timerBoxMission : timerBoxGame;
+    timerValueEl = appMode === "mission" ? timerValueMission : timerValueGame;
+    if (appMode === "mission") resetMissionTracker(); else resetForNewGame();
     startTimer(30);
     openMissionSetup("d");
   });
 
   document.getElementById("start-notimer-btn").addEventListener("click", () => {
     overlayStart.classList.remove("showing");
-    timerBox.classList.remove("active");
-    resetForNewGame();
+    timerBoxGame.classList.remove("active");
+    timerBoxMission.classList.remove("active");
+    if (appMode === "mission") resetMissionTracker(); else resetForNewGame();
     openMissionSetup("d");
   });
 
@@ -1023,14 +1496,21 @@
   });
 
   document.getElementById("mission-setup-ok").addEventListener("click", () => {
-    if (confirm(`Total points: ${missionSetupValue}?`)) {
+    if (!confirm(`Total points: ${missionSetupValue}?`)) return;
+    if (appMode === "mission") {
+      mtMissionValue[missionSetupRank] = missionSetupValue;
+      document.getElementById(`mt-total-${missionSetupRank}`).textContent = missionSetupValue;
+      document.querySelector(`.mt-col[data-rank="${missionSetupRank}"]`).classList.remove("locked");
+      mtActiveMissions.push(missionSetupRank);
+      mtRenderTotals();
+    } else {
       missionValue[missionSetupRank] = missionSetupValue;
       const cell = document.getElementById(`mission-value-${missionSetupRank}`);
       cell.textContent = missionSetupValue;
       cell.parentElement.classList.remove("locked");
       activeMissions.push(missionSetupRank);
-      overlayMissionSetup.classList.remove("showing");
     }
+    overlayMissionSetup.classList.remove("showing");
   });
 
   render();
