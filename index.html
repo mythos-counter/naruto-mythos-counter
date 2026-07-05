@@ -157,6 +157,12 @@
     font-weight:800;
     color:rgba(255,255,255,0.8);
   }
+  .mt-final-stack{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
 
   .app-mission .options-btn{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); }
 
@@ -931,6 +937,37 @@
     </div>
   </div>
 
+  <!-- Overlay 2c: Mission Tracker final score once A-MISSION has been set up -->
+  <div class="overlay" id="overlay-mt-final">
+    <div class="overlay-header">
+      <div class="overlay-title">FINAL SCORE</div>
+    </div>
+    <div class="overlay-main">
+      <div class="overlay-side left">
+        <button class="step step-chakra" data-mt-final="player" data-delta="1">+</button>
+        <div class="mt-final-stack">
+          <div class="mt-stat-label">YOUR POINTS</div>
+          <span class="overlay-value" id="mt-final-player">0</span>
+          <span class="mt-projected" id="mt-final-player-projected">+0</span>
+        </div>
+        <button class="step step-chakra" data-mt-final="player" data-delta="-1">–</button>
+      </div>
+      <div class="divider"></div>
+      <div class="overlay-side right">
+        <button class="step step-chakra" data-mt-final="rival" data-delta="1">+</button>
+        <div class="mt-final-stack">
+          <div class="mt-stat-label">RIVAL POINTS</div>
+          <span class="overlay-value" id="mt-final-rival">0</span>
+          <span class="mt-projected" id="mt-final-rival-projected">+0</span>
+        </div>
+        <button class="step step-chakra" data-mt-final="rival" data-delta="-1">–</button>
+      </div>
+    </div>
+    <div class="final-actions">
+      <button class="options-btn-row danger" id="mt-final-finish">FINISH &amp; RESET</button>
+    </div>
+  </div>
+
   <!-- Overlay 3: options -->
   <div class="overlay" id="overlay-options">
     <div class="overlay-header">
@@ -1212,6 +1249,7 @@
   let appMode = "game";
   const overlayMode = document.getElementById("overlay-mode");
   const appMissionEl = document.getElementById("app-mission");
+  const overlayMtFinal = document.getElementById("overlay-mt-final");
 
   let mtPoints = { d:{rival:0,player:0}, c:{rival:0,player:0}, b:{rival:0,player:0}, a:{rival:0,player:0} };
   let mtTotals = { rival: 0, player: 0 };
@@ -1263,6 +1301,19 @@
     mtApplyDiffColor(projEl, projectedDiff);
   }
 
+  function mtRenderFinalScore(){
+    document.getElementById("mt-final-player").textContent = mtTotals.player;
+    document.getElementById("mt-final-rival").textContent  = mtTotals.rival;
+    const { rivalProjected, playerProjected } = mtProjection();
+    document.getElementById("mt-final-player-projected").textContent = `+${playerProjected}`;
+    document.getElementById("mt-final-rival-projected").textContent  = `+${rivalProjected}`;
+  }
+
+  function mtShowFinalScore(){
+    mtRenderFinalScore();
+    overlayMtFinal.classList.add("showing");
+  }
+
   function resetMissionTracker(){
     mtPoints = { d:{rival:0,player:0}, c:{rival:0,player:0}, b:{rival:0,player:0}, a:{rival:0,player:0} };
     mtTotals = { rival: 0, player: 0 };
@@ -1282,6 +1333,7 @@
     if (mtResolveQueue.length === 0){
       const nextRank = MISSION_ORDER.find(r => mtMissionValue[r] === null);
       if (nextRank) openMissionSetup(nextRank);
+      else mtShowFinalScore();
       return;
     }
     const rank = mtResolveQueue.shift();
@@ -1315,6 +1367,21 @@
       mtTotals[who] = Math.max(0, mtTotals[who] + delta);
       mtRenderTotals();
     });
+  });
+
+  document.querySelectorAll('button.step[data-mt-final]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const who = btn.dataset.mtFinal, delta = Number(btn.dataset.delta);
+      mtTotals[who] = Math.max(0, mtTotals[who] + delta);
+      mtRenderFinalScore();
+      mtRenderTotals();
+    });
+  });
+
+  document.getElementById("mt-final-finish").addEventListener("click", () => {
+    if (confirm("Finish the game and reset?")){
+      location.reload();
+    }
   });
 
   document.getElementById("mt-end-round").addEventListener("click", () => {
