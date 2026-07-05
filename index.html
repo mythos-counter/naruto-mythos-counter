@@ -64,16 +64,15 @@
     min-width:0;
     display:flex;
     flex-direction:column;
-    align-items:center;
-    background:#1B2226;
     color:var(--ink);
-    border-right:1px solid rgba(255,255,255,0.08);
-    padding:8px 4px;
+    border-right:1px solid rgba(0,0,0,0.35);
   }
   .mt-col:last-child{ border-right:none; }
-  .mt-col.locked{ background:#2B3034; opacity:0.5; pointer-events:none; }
-  .mt-col.resolved{ opacity:0.75; pointer-events:none; }
-  .mt-col.mt-center{ background:var(--diff-bg); flex:1.15; }
+  .mt-col.locked{ opacity:0.55; pointer-events:none; }
+  .mt-col.locked .mt-stat, .mt-col.locked .mt-mission-info{ background:#2B3034; }
+  .mt-col.locked .mt-mission-total{ color:rgba(255,255,255,0.35); }
+  .mt-col.resolved{ opacity:0.8; pointer-events:none; }
+  .mt-col.mt-center{ flex:1.15; }
 
   .mt-stat{
     flex:1;
@@ -82,12 +81,15 @@
     align-items:center;
     justify-content:center;
     gap:4px;
+    padding:8px 4px;
   }
+  .mt-stat.mt-rival{ background:var(--right); }
+  .mt-stat.mt-player{ background:var(--left); }
   .mt-stat-label{
     font-size:clamp(9px, 1.6vh, 11px);
     font-weight:800;
     letter-spacing:0.1em;
-    color:rgba(255,255,255,0.55);
+    color:rgba(255,255,255,0.7);
   }
   .mt-stat-value{
     font-size:clamp(18px, 5.5vh, 34px);
@@ -107,14 +109,14 @@
     height:26px;
     flex-shrink:0;
     border-radius:999px;
-    background:rgba(255,255,255,0.12);
+    background:rgba(0,0,0,0.18);
     color:var(--ink);
     font-family:"Inter",system-ui,sans-serif;
     font-size:15px;
     font-weight:800;
     cursor:pointer;
   }
-  .mt-step:active{ background:rgba(255,255,255,0.24); }
+  .mt-step:active{ background:rgba(0,0,0,0.32); }
 
   .mt-mission-info{
     flex-shrink:0;
@@ -122,7 +124,8 @@
     flex-direction:column;
     align-items:center;
     gap:6px;
-    padding:8px 0;
+    padding:8px 4px;
+    background:var(--diff-bg);
   }
   .mt-mission-name{
     font-size:clamp(9px, 1.6vh, 11px);
@@ -140,6 +143,8 @@
     letter-spacing:0.04em;
     color:rgba(255,255,255,0.75);
   }
+  .mt-diff.diff-positive{ color:#4ADE80; }
+  .mt-diff.diff-negative{ color:#FF5C5C; }
   .mt-diff-total{ font-size:clamp(13px, 2.4vh, 17px); color:var(--ink); }
 
   .app-mission .options-btn{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); }
@@ -718,7 +723,7 @@
     <div class="mt-grid">
 
       <div class="mt-col locked" data-rank="d">
-        <div class="mt-stat">
+        <div class="mt-stat mt-rival">
           <div class="mt-stat-label">RIVAL</div>
           <div class="mt-stepper">
             <button class="mt-step" data-mt="rival" data-rank="d" data-delta="-1">–</button>
@@ -730,7 +735,7 @@
           <div class="mt-mission-name">D-MISSION <span class="mt-mission-total" id="mt-total-d">–</span></div>
           <div class="mt-diff" id="mt-diff-d">DIFF 0</div>
         </div>
-        <div class="mt-stat">
+        <div class="mt-stat mt-player">
           <div class="mt-stat-label">YOU</div>
           <div class="mt-stepper">
             <button class="mt-step" data-mt="player" data-rank="d" data-delta="-1">–</button>
@@ -741,7 +746,7 @@
       </div>
 
       <div class="mt-col locked" data-rank="c">
-        <div class="mt-stat">
+        <div class="mt-stat mt-rival">
           <div class="mt-stat-label">RIVAL</div>
           <div class="mt-stepper">
             <button class="mt-step" data-mt="rival" data-rank="c" data-delta="-1">–</button>
@@ -753,7 +758,7 @@
           <div class="mt-mission-name">C-MISSION <span class="mt-mission-total" id="mt-total-c">–</span></div>
           <div class="mt-diff" id="mt-diff-c">DIFF 0</div>
         </div>
-        <div class="mt-stat">
+        <div class="mt-stat mt-player">
           <div class="mt-stat-label">YOU</div>
           <div class="mt-stepper">
             <button class="mt-step" data-mt="player" data-rank="c" data-delta="-1">–</button>
@@ -764,7 +769,7 @@
       </div>
 
       <div class="mt-col mt-center">
-        <div class="mt-stat">
+        <div class="mt-stat mt-rival">
           <div class="mt-stat-label">RIVAL POINTS</div>
           <span class="mt-stat-value" id="mt-rival-total">0</span>
         </div>
@@ -772,14 +777,14 @@
           <div class="mt-diff mt-diff-total" id="mt-diff-overall">DIFF 0</div>
           <button class="end-round-btn" id="mt-end-round">END ROUND</button>
         </div>
-        <div class="mt-stat">
+        <div class="mt-stat mt-player">
           <div class="mt-stat-label">YOUR POINTS</div>
           <span class="mt-stat-value" id="mt-player-total">0</span>
         </div>
       </div>
 
       <div class="mt-col locked" data-rank="b">
-        <div class="mt-stat">
+        <div class="mt-stat mt-rival">
           <div class="mt-stat-label">RIVAL</div>
           <div class="mt-stepper">
             <button class="mt-step" data-mt="rival" data-rank="b" data-delta="-1">–</button>
@@ -791,7 +796,7 @@
           <div class="mt-mission-name">B-MISSION <span class="mt-mission-total" id="mt-total-b">–</span></div>
           <div class="mt-diff" id="mt-diff-b">DIFF 0</div>
         </div>
-        <div class="mt-stat">
+        <div class="mt-stat mt-player">
           <div class="mt-stat-label">YOU</div>
           <div class="mt-stepper">
             <button class="mt-step" data-mt="player" data-rank="b" data-delta="-1">–</button>
@@ -802,7 +807,7 @@
       </div>
 
       <div class="mt-col locked" data-rank="a">
-        <div class="mt-stat">
+        <div class="mt-stat mt-rival">
           <div class="mt-stat-label">RIVAL</div>
           <div class="mt-stepper">
             <button class="mt-step" data-mt="rival" data-rank="a" data-delta="-1">–</button>
@@ -814,7 +819,7 @@
           <div class="mt-mission-name">A-MISSION <span class="mt-mission-total" id="mt-total-a">–</span></div>
           <div class="mt-diff" id="mt-diff-a">DIFF 0</div>
         </div>
-        <div class="mt-stat">
+        <div class="mt-stat mt-player">
           <div class="mt-stat-label">YOU</div>
           <div class="mt-stepper">
             <button class="mt-step" data-mt="player" data-rank="a" data-delta="-1">–</button>
@@ -1192,16 +1197,28 @@
   let mtActiveMissions = [];
   let mtResolveQueue = [];
 
+  function mtApplyDiffColor(el, diff){
+    el.classList.remove("diff-positive", "diff-negative");
+    if (diff > 0) el.classList.add("diff-positive");
+    else if (diff < 0) el.classList.add("diff-negative");
+  }
+
   function mtRenderColumn(rank){
     document.getElementById(`mt-rival-${rank}`).textContent  = mtPoints[rank].rival;
     document.getElementById(`mt-player-${rank}`).textContent = mtPoints[rank].player;
-    document.getElementById(`mt-diff-${rank}`).textContent = `DIFF ${mtPoints[rank].player - mtPoints[rank].rival}`;
+    const diff = mtPoints[rank].player - mtPoints[rank].rival;
+    const diffEl = document.getElementById(`mt-diff-${rank}`);
+    diffEl.textContent = `DIFF ${diff}`;
+    mtApplyDiffColor(diffEl, diff);
   }
 
   function mtRenderTotals(){
     document.getElementById("mt-rival-total").textContent  = mtTotals.rival;
     document.getElementById("mt-player-total").textContent = mtTotals.player;
-    document.getElementById("mt-diff-overall").textContent = `DIFF ${mtTotals.player - mtTotals.rival}`;
+    const diff = mtTotals.player - mtTotals.rival;
+    const diffEl = document.getElementById("mt-diff-overall");
+    diffEl.textContent = `DIFF ${diff}`;
+    mtApplyDiffColor(diffEl, diff);
   }
 
   function resetMissionTracker(){
