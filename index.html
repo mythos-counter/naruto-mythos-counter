@@ -26,7 +26,7 @@
     --diff-bg: #12181B;
     --ink: #FFFFFF;
     --ink-dim: rgba(255,255,255,0.72);
-    --topbar-h: 112px;
+    --topbar-h: 136px;
   }
 
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
@@ -125,6 +125,31 @@
     cursor:pointer;
   }
   .end-round-btn:active{ background:rgba(255,255,255,0.28); }
+
+  .timer-box{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    margin-top:8px;
+  }
+  .timer-box.active{ display:flex; }
+  .timer-label{
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:0.16em;
+    color:rgba(255,255,255,0.45);
+  }
+  .timer-value{
+    font-size:17px;
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+    color:var(--ink);
+  }
+  .timer-value.warning{
+    color:#FF5C5C;
+    animation: timerBlink 1s step-start infinite;
+  }
+  @keyframes timerBlink{ 50%{ opacity:0.2; } }
 
   /* ---- Main area: Chakra left / right ---- */
   .main{
@@ -408,6 +433,7 @@
   @media (orientation:portrait){
     .app{ display:none; }
     .rotate-hint{ display:flex; }
+    #overlay-start{ display:none; }
   }
 </style>
 </head>
@@ -416,6 +442,15 @@
   <div class="rotate-hint">
     <div class="icon">📱↻</div>
     <p>Rotate your device to landscape to use the tracker.</p>
+  </div>
+
+  <!-- Start game gate -->
+  <div class="overlay showing" id="overlay-start">
+    <div class="options-panel">
+      <h3 style="margin:0 0 4px; font-size:24px; font-weight:900; letter-spacing:0.04em; color:var(--ink);">START GAME</h3>
+      <button class="options-btn-row" id="start-timer-btn">TIMER 30'</button>
+      <button class="options-btn-row" id="start-notimer-btn">NO TIMER</button>
+    </div>
   </div>
 
   <div class="app">
@@ -434,6 +469,10 @@
         <div class="diff-label">DIFF</div>
         <div class="diff-value" id="diff">0</div>
         <button class="end-round-btn" id="end-round">END ROUND</button>
+        <div class="timer-box" id="timer-box">
+          <div class="timer-label">TIME</div>
+          <div class="timer-value" id="timer-value">30:00</div>
+        </div>
       </div>
 
       <div class="points right">
@@ -743,6 +782,50 @@
     render();
     saveState();
     overlayChakra.classList.remove("showing");
+  });
+
+  // ---- Start game gate + optional 30-min timer ----
+  const overlayStart = document.getElementById("overlay-start");
+  const timerBox      = document.getElementById("timer-box");
+  const timerValueEl  = document.getElementById("timer-value");
+  let timerEndAt = null;
+  let timerInterval = null;
+
+  function formatTime(ms){
+    const totalSec = Math.max(0, Math.ceil(ms / 1000));
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return `${m}:${String(s).padStart(2, "0")}`;
+  }
+
+  function tickTimer(){
+    const remaining = timerEndAt - Date.now();
+    if (remaining <= 0){
+      timerValueEl.textContent = "0:00";
+      timerValueEl.classList.add("warning");
+      clearInterval(timerInterval);
+      return;
+    }
+    timerValueEl.textContent = formatTime(remaining);
+  }
+
+  function startTimer(minutes){
+    timerEndAt = Date.now() + minutes * 60 * 1000;
+    timerValueEl.classList.remove("warning");
+    timerBox.classList.add("active");
+    clearInterval(timerInterval);
+    tickTimer();
+    timerInterval = setInterval(tickTimer, 500);
+  }
+
+  document.getElementById("start-timer-btn").addEventListener("click", () => {
+    overlayStart.classList.remove("showing");
+    startTimer(30);
+  });
+
+  document.getElementById("start-notimer-btn").addEventListener("click", () => {
+    overlayStart.classList.remove("showing");
+    timerBox.classList.remove("active");
   });
 
   render();
