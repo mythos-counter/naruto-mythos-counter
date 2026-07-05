@@ -474,6 +474,16 @@
   }
   .overlay-ok:active{ background:#fff; }
 
+  .final-actions{
+    flex-shrink:0;
+    display:flex;
+    gap:12px;
+    padding:16px;
+    background:var(--diff-bg);
+    justify-content:center;
+  }
+  .final-actions .options-btn-row{ width:auto; flex:1; max-width:300px; }
+
   /* ---- Rotate hint for portrait ---- */
   .rotate-hint{
     display:none;
@@ -646,6 +656,30 @@
     </div>
   </div>
 
+  <!-- Overlay 2b: final score once A-MISSION has been resolved -->
+  <div class="overlay" id="overlay-final">
+    <div class="overlay-header">
+      <div class="overlay-title">FINAL SCORE</div>
+    </div>
+    <div class="overlay-main">
+      <div class="overlay-side left">
+        <button class="step step-chakra" data-final="left" data-delta="1">+</button>
+        <span class="overlay-value" id="final-points-left">0</span>
+        <button class="step step-chakra" data-final="left" data-delta="-1">–</button>
+      </div>
+      <div class="divider"></div>
+      <div class="overlay-side right">
+        <button class="step step-chakra" data-final="right" data-delta="1">+</button>
+        <span class="overlay-value" id="final-points-right">0</span>
+        <button class="step step-chakra" data-final="right" data-delta="-1">–</button>
+      </div>
+    </div>
+    <div class="final-actions">
+      <button class="options-btn-row" id="final-extra-round">PLAY EXTRA ROUND</button>
+      <button class="options-btn-row danger" id="final-finish">FINISH &amp; RESET</button>
+    </div>
+  </div>
+
   <!-- Overlay 3: options -->
   <div class="overlay" id="overlay-options">
     <div class="overlay-header">
@@ -809,6 +843,7 @@
   const overlayMissionWinner = document.getElementById("overlay-mission-winner");
   const missionWinnerTitle   = document.getElementById("mission-winner-title");
   const overlayChakra = document.getElementById("overlay-chakra");
+  const overlayFinal = document.getElementById("overlay-final");
   let ovChakra = { left: 5, right: 5 };
 
   function renderOverlayChakra(){
@@ -822,9 +857,23 @@
     overlayChakra.classList.add("showing");
   }
 
+  function renderFinalScore(){
+    document.getElementById("final-points-left").textContent  = state.left.points;
+    document.getElementById("final-points-right").textContent = state.right.points;
+  }
+
+  function showFinalScore(){
+    renderFinalScore();
+    overlayFinal.classList.add("showing");
+  }
+
   function resolveNextMission(){
     if (resolveQueue.length === 0){
-      startChakraStep();
+      if (missionValue.a !== null){
+        showFinalScore();
+      } else {
+        startChakraStep();
+      }
       return;
     }
     const rank = resolveQueue.shift();
@@ -876,6 +925,27 @@
 
     const nextRank = MISSION_ORDER.find(r => missionValue[r] === null);
     if (nextRank) openMissionSetup(nextRank);
+  });
+
+  document.querySelectorAll('button.step[data-final]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const side = btn.dataset.final, delta = Number(btn.dataset.delta);
+      state[side].points = Math.max(0, state[side].points + delta);
+      render();
+      saveState();
+      renderFinalScore();
+    });
+  });
+
+  document.getElementById("final-extra-round").addEventListener("click", () => {
+    overlayFinal.classList.remove("showing");
+    startChakraStep();
+  });
+
+  document.getElementById("final-finish").addEventListener("click", () => {
+    if (confirm("Finish the game and reset for both players?")){
+      location.reload();
+    }
   });
 
   // ---- Start game gate + optional 30-min timer ----
