@@ -71,7 +71,6 @@
   .mt-col.locked{ opacity:0.55; pointer-events:none; }
   .mt-col.locked .mt-stat, .mt-col.locked .mt-mission-info{ background:#2B3034; }
   .mt-col.locked .mt-mission-total{ color:rgba(255,255,255,0.35); }
-  .mt-col.resolved{ opacity:0.8; pointer-events:none; }
   .mt-col.mt-center{ flex:1.15; }
 
   .mt-stat{
@@ -1239,7 +1238,6 @@
     let rivalProjected = 0, playerProjected = 0;
     MISSION_ORDER.forEach(rank => {
       if (mtMissionValue[rank] === null) return;
-      if (document.querySelector(`.mt-col[data-rank="${rank}"]`).classList.contains("resolved")) return;
       const raw = mtPoints[rank].player - mtPoints[rank].rival;
       if (raw > 0) playerProjected += mtMissionValue[rank];
       else if (raw < 0) rivalProjected += mtMissionValue[rank];
@@ -1274,7 +1272,6 @@
     MISSION_ORDER.forEach(rank => {
       const col = document.querySelector(`.mt-col[data-rank="${rank}"]`);
       col.classList.add("locked");
-      col.classList.remove("resolved");
       document.getElementById(`mt-total-${rank}`).textContent = "–";
       mtRenderColumn(rank);
     });
@@ -1298,7 +1295,6 @@
   function mtAwardMissionWinner(who){
     const rank = overlayMissionWinner.dataset.rank;
     mtTotals[who] += mtMissionValue[rank];
-    document.querySelector(`.mt-col[data-rank="${rank}"]`).classList.add("resolved");
     mtRenderTotals();
     overlayMissionWinner.classList.remove("showing");
     mtResolveNextMission();
