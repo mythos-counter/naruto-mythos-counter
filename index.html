@@ -85,6 +85,8 @@
   }
   .mt-stat.mt-rival{ background:var(--right); }
   .mt-stat.mt-player{ background:var(--left); }
+  .mt-col.mt-center .mt-stat.mt-rival{ background:var(--right-dark); }
+  .mt-col.mt-center .mt-stat.mt-player{ background:var(--left-dark); }
   .mt-stat-label{
     font-size:clamp(9px, 1.6vh, 11px);
     font-weight:800;
@@ -827,7 +829,11 @@
       <div class="mt-col mt-center">
         <div class="mt-stat mt-rival">
           <div class="mt-stat-label">RIVAL POINTS</div>
-          <span class="mt-stat-value" id="mt-rival-total">0</span>
+          <div class="mt-stepper">
+            <button class="mt-step" data-mt-total="rival" data-delta="-1">–</button>
+            <span class="mt-stat-value" id="mt-rival-total">0</span>
+            <button class="mt-step" data-mt-total="rival" data-delta="1">+</button>
+          </div>
           <span class="mt-projected" id="mt-rival-projected">+0</span>
         </div>
         <div class="mt-mission-info">
@@ -837,7 +843,11 @@
         </div>
         <div class="mt-stat mt-player">
           <div class="mt-stat-label">YOUR POINTS</div>
-          <span class="mt-stat-value" id="mt-player-total">0</span>
+          <div class="mt-stepper">
+            <button class="mt-step" data-mt-total="player" data-delta="-1">–</button>
+            <span class="mt-stat-value" id="mt-player-total">0</span>
+            <button class="mt-step" data-mt-total="player" data-delta="1">+</button>
+          </div>
           <span class="mt-projected" id="mt-player-projected">+0</span>
         </div>
       </div>
@@ -1299,6 +1309,14 @@
       const rank = btn.dataset.rank, who = btn.dataset.mt, delta = Number(btn.dataset.delta);
       mtPoints[rank][who] = Math.max(0, mtPoints[rank][who] + delta);
       mtRenderColumn(rank);
+      mtRenderTotals();
+    });
+  });
+
+  document.querySelectorAll('button.mt-step[data-mt-total]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const who = btn.dataset.mtTotal, delta = Number(btn.dataset.delta);
+      mtTotals[who] = Math.max(0, mtTotals[who] + delta);
       mtRenderTotals();
     });
   });
